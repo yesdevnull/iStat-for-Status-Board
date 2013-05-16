@@ -38,7 +38,7 @@ switch ( $data ) {
 
 		$db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
 
-		$sql = 'SELECT user, system, time, nice FROM day_cpuhistory ORDER BY time DESC LIMIT 20';
+		$sql = 'SELECT user, system, time, nice FROM day_cpuhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
 
 		$finalArray = array (
 			'graph' => array (
@@ -93,7 +93,7 @@ switch ( $data ) {
 		
 		$total_ram = $result['total'];
 
-		$sql = 'SELECT wired, active, time, inactive, free, total FROM day_memoryhistory ORDER BY time DESC LIMIT 20';
+		$sql = 'SELECT wired, active, time, inactive, free, total FROM day_memoryhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
 
 		$finalArray = array (
 			'graph' => array (
