@@ -3,7 +3,7 @@ This is a collection of SQLite commands to get data from the iStat Server databa
 
 ## Usage
 1. Chuck this file anywhere on your server accessible by Apache
-2. Add a graph in Status Board with the URI */path/to/file/*istat.php?data=*data type*
+2. Add a graph in Status Board with the URI _/path/to/file/_istat.php?data=_data type_
 
 Data Types:
 * ram_day : RAM usage for the day
