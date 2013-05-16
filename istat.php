@@ -34,15 +34,15 @@ function formatSizeUnits($bytes)
 }
 
 switch ( $data ) {
-	case 'cpu_hour' :
+	case 'cpu_day' :
 
 		$db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
 
-		$sql = 'SELECT user, system, time, nice FROM hour_cpuhistory ORDER BY time DESC LIMIT 20';
+		$sql = 'SELECT user, system, time, nice FROM day_cpuhistory ORDER BY time DESC LIMIT 20';
 
 		$finalArray = array (
 			'graph' => array (
-				'title' => 'CPU History - Hourly' ,
+				'title' => 'CPU History (Last 24 Hours)' ,
 				'type' => 'line' ,
 				'refreshEveryNSeconds' => '30' ,
 				'datasequences' => '' ,
@@ -81,20 +81,28 @@ switch ( $data ) {
 
 	break;
 	
-	case 'ram_hour' :
+	case 'ram_day' :
 
 		$db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
+		
+		$stmt = $db->prepare ( 'SELECT total FROM day_memoryhistory' );
+		
+		$stmt->execute();
+		
+		$result = $stmt->fetch();
+		
+		$total_ram = $result['total'];
 
-		$sql = 'SELECT wired, active, time, inactive, free, total FROM hour_memoryhistory ORDER BY time DESC LIMIT 20';
+		$sql = 'SELECT wired, active, time, inactive, free, total FROM day_memoryhistory ORDER BY time DESC LIMIT 20';
 
 		$finalArray = array (
 			'graph' => array (
-				'title' => 'RAM History - Hourly' ,
+				'title' => 'RAM History (Last 24 Hours)' ,
 				'type' => 'line' ,
 				'refreshEveryNSeconds' => '30' ,
 				'yAxis' => array (
 					'minValue' => 0 ,
-					'maxValue' => formatSizeUnits ( '8388608.000000' ) ,
+					'maxValue' => formatSizeUnits( $total_ram ) ,
 					'units' => array (
 						'suffix' => ' GB' ,
 					)
