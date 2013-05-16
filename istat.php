@@ -69,12 +69,12 @@ switch ( $data ) {
 		$finalArray['graph']['datasequences'] = array (
 			array (
 				'title' => 'System' ,
-				'color' => 'green' ,
+				'color' => 'red' ,
 				'datapoints' => $cpu_system ,
 			) ,
 			array (
 				'title' => 'User' ,
-				'color' => 'red' ,
+				'color' => 'blue' ,
 				'datapoints' => $cpu_user ,
 			) ,
 		);
@@ -118,17 +118,17 @@ switch ( $data ) {
 		$finalArray['graph']['datasequences'] = array (
 			array (
 				'title' => 'Inactive' ,
-				'color' => 'blue' ,
+				'color' => 'mediumGray' ,
 				'datapoints' => $ram_inactive ,
 			) ,
 			array (
 				'title' => 'Active' ,
-				'color' => 'green' ,
+				'color' => 'red' ,
 				'datapoints' => $ram_active ,
 			) ,
 			array (
 				'title' => 'Wired' ,
-				'color' => 'red' ,
+				'color' => 'blue' ,
 				'datapoints' => $ram_wired ,
 			) ,
 		);
