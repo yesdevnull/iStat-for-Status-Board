@@ -63,8 +63,6 @@ switch ( $data ) {
 			$cpu_user[] = array ( 'title' => $time , 'value' => $row['user'] );
 			
 			$cpu_system[] = array ( 'title' => $time , 'value' => $row['system'] + $row['user'] );
-			
-			$cpu_nice[] = array ( 'title' => $time , 'value' => $row['nice'] + $row['system'] + $row['user'] );
 		}
 
 
@@ -73,11 +71,6 @@ switch ( $data ) {
 				'title' => 'System' ,
 				'color' => 'green' ,
 				'datapoints' => $cpu_system ,
-			) ,
-			array (
-				'title' => 'Nice' ,
-				'color' => 'blue' ,
-				'datapoints' => $cpu_nice ,
 			) ,
 			array (
 				'title' => 'User' ,
@@ -119,17 +112,10 @@ switch ( $data ) {
 			$ram_active[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['active'] + $row['wired'] ) );
 			
 			$ram_inactive[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['inactive'] + $row['active'] + $row['wired'] ) );
-			
-			$ram_free[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['free'] + $row['inactive'] + $row['active'] + $row['wired'] ) );
 		}
 
 
 		$finalArray['graph']['datasequences'] = array (
-			array (
-				'title' => 'Free' ,
-				'color' => 'yellow' ,
-				'datapoints' => $ram_free ,
-			) ,
 			array (
 				'title' => 'Inactive' ,
 				'color' => 'blue' ,
