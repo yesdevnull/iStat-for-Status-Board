@@ -1,5 +1,5 @@
 # Info
-This is a collection of SQLite commands to get data from the iStat Server database which tidys it up and is useable for Panic's Status Board app for iPad.
+This is a collection of graphs from iStat Server 2's database for [Panic's Status Board](http://panic.com/statusboard/) app for iPad.
 
 ## Usage
 1. Chuck this file anywhere on your server accessible by Apache
