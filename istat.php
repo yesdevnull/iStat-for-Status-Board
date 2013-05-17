@@ -142,6 +142,57 @@ switch ( $data ) {
 		);
 	
 	break;
+	
+	case 'load_day' :
+	
+		$db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
+
+		$sql = 'SELECT one, five, fifteen, time FROM day_loadavghistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
+
+		$finalArray = array (
+			'graph' => array (
+				'title' => 'Load Avg (Last 24 Hours)' ,
+				'type' => 'line' ,
+				'refreshEveryNSeconds' => '30' ,
+				'datasequences' => '' ,
+				'yAxis' => array (
+					'minValue' => 0 ,
+					'maxValue' => 6 ,
+				) ,
+			)
+		);
+
+
+		foreach ( $db->query ( $sql ) as $row ) {
+			$time = date ( 'H:i:s' ,  $row['time'] );
+			
+			$load_one[] = array ( 'title' => $time , 'value' => $row['one'] );
+			
+			$load_five[] = array ( 'title' => $time , 'value' => $row['five'] );
+			
+			$load_fifteen[] = array ( 'title' => $time , 'value' => $row['fifteen'] );
+		}
+
+
+		$finalArray['graph']['datasequences'] = array (
+			array (
+				'title' => 'Fifteen' ,
+				'color' => 'mediumGray' ,
+				'datapoints' => $load_fifteen ,
+			) ,
+			array (
+				'title' => 'Five' ,
+				'color' => 'red' ,
+				'datapoints' => $load_five ,
+			) ,
+			array (
+				'title' => 'One' ,
+				'color' => 'blue' ,
+				'datapoints' => $load_one ,
+			) ,
+		);
+	
+	break;
 }
 
 header ( 'content-type: application/json' );
