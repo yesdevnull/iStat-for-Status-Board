@@ -10,4 +10,4 @@ Data Types:
 * cpu_day : CPU usage for the day
 
 ## Alert!
-This has been tested on OS X Server 10.8.3 with the default PHP runtime environment with iStat Server 2.12
+This has been tested on Mac OS X 10.8.3 with the default PHP runtime environment with iStat Server 2.12
