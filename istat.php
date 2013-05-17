@@ -382,6 +382,89 @@ switch ( $data ) {
 		);
 	
 	break;
+	
+	case 'load_hour' :
+		
+		$sql = 'SELECT
+					MAX( one ) AS one ,
+					MAX( five ) AS five ,
+					MAX( fifteen ) AS fifteen
+				FROM
+					hour_loadavghistory';
+					
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		$result = $stmt->fetchAll();
+		
+		$values = array_values ( max ( $result ) );
+		
+		$max = max ( $values );
+		
+		$highest_load = $max + 0.5;
+		
+		$finalArray = array (
+			'graph' => array (
+				'title' => 'Load Avg (Last Hour)' ,
+				'type' => 'line' ,
+				'refreshEveryNSeconds' => '60' ,
+				'datasequences' => '' ,
+				'yAxis' => array (
+					'minValue' => 0 ,
+					'maxValue' => $highest_load ,
+				) ,
+			)
+		);
+		
+		$sql = 'SELECT
+					one ,
+					five ,
+					fifteen ,
+					time
+				FROM
+					hour_loadavghistory
+				WHERE
+					rowid % 30 = 0
+				ORDER BY
+					time
+				ASC
+				LIMIT
+					20';
+		
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		foreach ( $stmt->fetchAll() as $row ) {
+			$time = date ( 'H:i:s' ,  $row['time'] );
+			
+			$load_one[] = array ( 'title' => $time , 'value' => $row['one'] );
+			
+			$load_five[] = array ( 'title' => $time , 'value' => $row['five'] );
+			
+			$load_fifteen[] = array ( 'title' => $time , 'value' => $row['fifteen'] );
+		}
+		
+		$finalArray['graph']['datasequences'] = array (
+			array (
+				'title' => 'Fifteen' ,
+				'color' => 'mediumGray' ,
+				'datapoints' => $load_fifteen ,
+			) ,
+			array (
+				'title' => 'Five' ,
+				'color' => 'red' ,
+				'datapoints' => $load_five ,
+			) ,
+			array (
+				'title' => 'One' ,
+				'color' => 'blue' ,
+				'datapoints' => $load_one ,
+			) ,
+		);
+	
+	break;
 }
 
 header ( 'content-type: application/json' );
