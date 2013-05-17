@@ -24,6 +24,7 @@ function formatSizeUnits ( $bytes ) {
 $db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
 
 switch ( $data ) {
+	/* !CPU Day */
 	case 'cpu_day' :
 
 		$finalArray = array (
@@ -84,6 +85,7 @@ switch ( $data ) {
 
 	break;
 	
+	/* !CPU Hour */
 	case 'cpu_hour' :
 
 		$finalArray = array (
@@ -144,6 +146,7 @@ switch ( $data ) {
 
 	break;
 	
+	/* !RAM Day */
 	case 'ram_day' :
 		
 		$stmt = $db->prepare ( 'SELECT
@@ -221,7 +224,8 @@ switch ( $data ) {
 		);
 	
 	break;
-
+	
+	/* !RAM Hour */
 	case 'ram_hour' :
 		
 		$stmt = $db->prepare ( 'SELECT
@@ -300,6 +304,7 @@ switch ( $data ) {
 	
 	break;
 	
+	/* !Load Day */
 	case 'load_day' :
 		
 		$sql = 'SELECT
@@ -383,6 +388,7 @@ switch ( $data ) {
 	
 	break;
 	
+	/* !Load Hour */
 	case 'load_hour' :
 		
 		$sql = 'SELECT
