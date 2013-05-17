@@ -33,12 +33,10 @@ function formatSizeUnits($bytes)
         return $bytes;
 }
 
+$db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
+
 switch ( $data ) {
 	case 'cpu_day' :
-
-		$db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
-
-		$sql = 'SELECT user, system, time, nice FROM day_cpuhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
 
 		$finalArray = array (
 			'graph' => array (
@@ -55,17 +53,68 @@ switch ( $data ) {
 				) ,
 			)
 		);
-
-
-		foreach ( $db->query ( $sql ) as $row ) {
+		
+		$sql = 'SELECT user, system, time, nice FROM day_cpuhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
+		
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i:s' ,  $row['time'] );
 			
 			$cpu_user[] = array ( 'title' => $time , 'value' => $row['user'] );
 			
 			$cpu_system[] = array ( 'title' => $time , 'value' => $row['system'] + $row['user'] );
 		}
+		
+		$finalArray['graph']['datasequences'] = array (
+			array (
+				'title' => 'System' ,
+				'color' => 'red' ,
+				'datapoints' => $cpu_system ,
+			) ,
+			array (
+				'title' => 'User' ,
+				'color' => 'blue' ,
+				'datapoints' => $cpu_user ,
+			) ,
+		);
 
+	break;
+	
+	case 'cpu_hour' :
 
+		$finalArray = array (
+			'graph' => array (
+				'title' => 'CPU History (Last Hour)' ,
+				'type' => 'line' ,
+				'refreshEveryNSeconds' => '30' ,
+				'datasequences' => '' ,
+				'yAxis' => array (
+					'minValue' => 0 ,
+					'maxValue' => 100 ,
+					'units' => array (
+						'suffix' => '%' ,
+					) ,
+				) ,
+			)
+		);
+		
+		$sql = 'SELECT user, system, time, nice FROM hour_cpuhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
+		
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		foreach ( $stmt->fetchAll() as $row ) {
+			$time = date ( 'H:i:s' ,  $row['time'] );
+			
+			$cpu_user[] = array ( 'title' => $time , 'value' => $row['user'] );
+			
+			$cpu_system[] = array ( 'title' => $time , 'value' => $row['system'] + $row['user'] );
+		}
+		
 		$finalArray['graph']['datasequences'] = array (
 			array (
 				'title' => 'System' ,
@@ -82,8 +131,6 @@ switch ( $data ) {
 	break;
 	
 	case 'ram_day' :
-
-		$db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
 		
 		$stmt = $db->prepare ( 'SELECT total FROM day_memoryhistory' );
 		
@@ -92,8 +139,6 @@ switch ( $data ) {
 		$result = $stmt->fetch();
 		
 		$total_ram = $result['total'];
-
-		$sql = 'SELECT wired, active, time, inactive, free, total FROM day_memoryhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
 
 		$finalArray = array (
 			'graph' => array (
@@ -110,9 +155,14 @@ switch ( $data ) {
 				'datasequences' => '' ,
 			)
 		);
-
-
-		foreach ( $db->query ( $sql ) as $row ) {
+		
+		$sql = 'SELECT wired, active, time, inactive, free, total FROM day_memoryhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
+		
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i:s' ,  $row['time'] );
 			
 			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] ) );
@@ -121,8 +171,69 @@ switch ( $data ) {
 			
 			$ram_inactive[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['inactive'] + $row['active'] + $row['wired'] ) );
 		}
+		
+		$finalArray['graph']['datasequences'] = array (
+			array (
+				'title' => 'Inactive' ,
+				'color' => 'mediumGray' ,
+				'datapoints' => $ram_inactive ,
+			) ,
+			array (
+				'title' => 'Active' ,
+				'color' => 'red' ,
+				'datapoints' => $ram_active ,
+			) ,
+			array (
+				'title' => 'Wired' ,
+				'color' => 'blue' ,
+				'datapoints' => $ram_wired ,
+			) ,
+		);
+	
+	break;
 
+	case 'ram_hour' :
+		
+		$stmt = $db->prepare ( 'SELECT total FROM hour_memoryhistory' );
+		
+		$stmt->execute();
+		
+		$result = $stmt->fetch();
+		
+		$total_ram = $result['total'];
 
+		$finalArray = array (
+			'graph' => array (
+				'title' => 'RAM History (Last Hour)' ,
+				'type' => 'line' ,
+				'refreshEveryNSeconds' => '30' ,
+				'yAxis' => array (
+					'minValue' => 0 ,
+					'maxValue' => formatSizeUnits( $total_ram ) ,
+					'units' => array (
+						'suffix' => ' GB' ,
+					)
+				) ,
+				'datasequences' => '' ,
+			)
+		);
+		
+		$sql = 'SELECT wired, active, time, inactive, free, total FROM hour_memoryhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
+		
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		foreach ( $stmt->fetchAll() as $row ) {
+			$time = date ( 'H:i:s' ,  $row['time'] );
+			
+			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] ) );
+			
+			$ram_active[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['active'] + $row['wired'] ) );
+			
+			$ram_inactive[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['inactive'] + $row['active'] + $row['wired'] ) );
+		}
+		
 		$finalArray['graph']['datasequences'] = array (
 			array (
 				'title' => 'Inactive' ,
@@ -144,11 +255,7 @@ switch ( $data ) {
 	break;
 	
 	case 'load_day' :
-	
-		$db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
-
-		$sql = 'SELECT one, five, fifteen, time FROM day_loadavghistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
-
+		
 		$finalArray = array (
 			'graph' => array (
 				'title' => 'Load Avg (Last 24 Hours)' ,
@@ -161,9 +268,14 @@ switch ( $data ) {
 				) ,
 			)
 		);
-
-
-		foreach ( $db->query ( $sql ) as $row ) {
+		
+		$sql = 'SELECT one, five, fifteen, time FROM day_loadavghistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
+		
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i:s' ,  $row['time'] );
 			
 			$load_one[] = array ( 'title' => $time , 'value' => $row['one'] );
@@ -172,8 +284,7 @@ switch ( $data ) {
 			
 			$load_fifteen[] = array ( 'title' => $time , 'value' => $row['fifteen'] );
 		}
-
-
+		
 		$finalArray['graph']['datasequences'] = array (
 			array (
 				'title' => 'Fifteen' ,
