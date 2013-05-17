@@ -42,7 +42,7 @@ switch ( $data ) {
 			'graph' => array (
 				'title' => 'CPU History (Last 24 Hours)' ,
 				'type' => 'line' ,
-				'refreshEveryNSeconds' => '30' ,
+				'refreshEveryNSeconds' => '60' ,
 				'datasequences' => '' ,
 				'yAxis' => array (
 					'minValue' => 0 ,
@@ -89,7 +89,7 @@ switch ( $data ) {
 			'graph' => array (
 				'title' => 'CPU History (Last Hour)' ,
 				'type' => 'line' ,
-				'refreshEveryNSeconds' => '30' ,
+				'refreshEveryNSeconds' => '60' ,
 				'datasequences' => '' ,
 				'yAxis' => array (
 					'minValue' => 0 ,
@@ -144,7 +144,7 @@ switch ( $data ) {
 			'graph' => array (
 				'title' => 'RAM History (Last 24 Hours)' ,
 				'type' => 'line' ,
-				'refreshEveryNSeconds' => '30' ,
+				'refreshEveryNSeconds' => '60' ,
 				'yAxis' => array (
 					'minValue' => 0 ,
 					'maxValue' => formatSizeUnits( $total_ram ) ,
@@ -206,7 +206,7 @@ switch ( $data ) {
 			'graph' => array (
 				'title' => 'RAM History (Last Hour)' ,
 				'type' => 'line' ,
-				'refreshEveryNSeconds' => '30' ,
+				'refreshEveryNSeconds' => '60' ,
 				'yAxis' => array (
 					'minValue' => 0 ,
 					'maxValue' => formatSizeUnits( $total_ram ) ,
@@ -260,7 +260,7 @@ switch ( $data ) {
 			'graph' => array (
 				'title' => 'Load Avg (Last 24 Hours)' ,
 				'type' => 'line' ,
-				'refreshEveryNSeconds' => '30' ,
+				'refreshEveryNSeconds' => '60' ,
 				'datasequences' => '' ,
 				'yAxis' => array (
 					'minValue' => 0 ,
