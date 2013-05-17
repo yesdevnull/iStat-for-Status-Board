@@ -3,34 +3,22 @@
 $data = $_GET['data'];
 
 // From: http://stackoverflow.com/a/5501447
-function formatSizeUnits($bytes)
-    {
-        if ($bytes >= 1073741824)
-        {
-            $bytes = number_format($bytes / 1073741824, 2);
-        }
-        elseif ($bytes >= 1048576)
-        {
-            $bytes = number_format($bytes / 1048576, 2);
-        }
-        elseif ($bytes >= 1024)
-        {
-            $bytes = number_format($bytes / 1024, 2);
-        }
-        elseif ($bytes > 1)
-        {
-            $bytes = $bytes . ' bytes';
-        }
-        elseif ($bytes == 1)
-        {
-            $bytes = $bytes . ' byte';
-        }
-        else
-        {
-            $bytes = '0 bytes';
-        }
+function formatSizeUnits ( $bytes ) {
+	if ( $bytes >= 1073741824 ) {
+		$bytes = number_format ( $bytes / 1073741824 , 2 );
+	} elseif ( $bytes >= 1048576 ) {
+		$bytes = number_format ( $bytes / 1048576 , 2 );
+	} elseif ( $bytes >= 1024 ) {
+		$bytes = number_format ( $bytes / 1024 , 2 );
+	} elseif ( $bytes > 1 ) {
+		$bytes = $bytes;
+	} elseif ( $bytes == 1 ) {
+		$bytes = $bytes;
+	} else {
+		$bytes = 0;
+	}
 
-        return $bytes;
+	return $bytes;
 }
 
 $db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
@@ -54,7 +42,19 @@ switch ( $data ) {
 			)
 		);
 		
-		$sql = 'SELECT user, system, time, nice FROM day_cpuhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
+		$sql = 'SELECT
+					user ,
+					system ,
+					time
+				FROM
+					day_cpuhistory
+				WHERE
+					rowid % 30 = 0
+				ORDER BY
+					time
+				ASC
+				LIMIT
+					20';
 		
 		$stmt = $db->prepare ( $sql );
 		
@@ -65,6 +65,7 @@ switch ( $data ) {
 			
 			$cpu_user[] = array ( 'title' => $time , 'value' => $row['user'] );
 			
+			// Added together for a nice stacked graph
 			$cpu_system[] = array ( 'title' => $time , 'value' => $row['system'] + $row['user'] );
 		}
 		
@@ -101,7 +102,19 @@ switch ( $data ) {
 			)
 		);
 		
-		$sql = 'SELECT user, system, time, nice FROM hour_cpuhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
+		$sql = 'SELECT
+					user ,
+					system ,
+					time
+				FROM
+					hour_cpuhistory
+				WHERE
+					rowid % 30 = 0
+				ORDER BY
+					time
+				ASC
+				LIMIT
+					20';
 		
 		$stmt = $db->prepare ( $sql );
 		
@@ -112,6 +125,7 @@ switch ( $data ) {
 			
 			$cpu_user[] = array ( 'title' => $time , 'value' => $row['user'] );
 			
+			// Added together for a nice stacked graph
 			$cpu_system[] = array ( 'title' => $time , 'value' => $row['system'] + $row['user'] );
 		}
 		
@@ -132,7 +146,10 @@ switch ( $data ) {
 	
 	case 'ram_day' :
 		
-		$stmt = $db->prepare ( 'SELECT total FROM day_memoryhistory' );
+		$stmt = $db->prepare ( 'SELECT
+									total
+								FROM
+									day_memoryhistory' );
 		
 		$stmt->execute();
 		
@@ -156,7 +173,20 @@ switch ( $data ) {
 			)
 		);
 		
-		$sql = 'SELECT wired, active, time, inactive, free, total FROM day_memoryhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
+		$sql = 'SELECT
+					wired ,
+					active ,
+					inactive ,
+					time
+				FROM
+					day_memoryhistory
+				WHERE
+					rowid % 30 = 0
+				ORDER BY
+					time
+				ASC
+				LIMIT
+					20';
 		
 		$stmt = $db->prepare ( $sql );
 		
@@ -194,7 +224,10 @@ switch ( $data ) {
 
 	case 'ram_hour' :
 		
-		$stmt = $db->prepare ( 'SELECT total FROM hour_memoryhistory' );
+		$stmt = $db->prepare ( 'SELECT
+									total
+								FROM
+									hour_memoryhistory' );
 		
 		$stmt->execute();
 		
@@ -218,7 +251,20 @@ switch ( $data ) {
 			)
 		);
 		
-		$sql = 'SELECT wired, active, time, inactive, free, total FROM hour_memoryhistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
+		$sql = 'SELECT
+					wired ,
+					active ,
+					inactive ,
+					time
+				FROM
+					hour_memoryhistory
+				WHERE
+					rowid % 30 = 0
+				ORDER BY
+					time
+				ASC
+				LIMIT
+					20';
 		
 		$stmt = $db->prepare ( $sql );
 		
@@ -269,7 +315,20 @@ switch ( $data ) {
 			)
 		);
 		
-		$sql = 'SELECT one, five, fifteen, time FROM day_loadavghistory WHERE rowid % 30 = 0 ORDER BY time ASC LIMIT 20';
+		$sql = 'SELECT
+					one ,
+					five ,
+					fifteen ,
+					time
+				FROM
+					day_loadavghistory
+				WHERE
+					rowid % 30 = 0
+				ORDER BY
+					time
+				ASC
+				LIMIT
+					20';
 		
 		$stmt = $db->prepare ( $sql );
 		
