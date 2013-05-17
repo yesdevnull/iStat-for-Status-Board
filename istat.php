@@ -302,6 +302,25 @@ switch ( $data ) {
 	
 	case 'load_day' :
 		
+		$sql = 'SELECT
+					MAX( one ) AS one ,
+					MAX( five ) AS five ,
+					MAX( fifteen ) AS fifteen
+				FROM
+					day_loadavghistory';
+					
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		$result = $stmt->fetchAll();
+		
+		$values = array_values ( max ( $result ) );
+		
+		$max = max ( $values );
+		
+		$highest_load = $max + 0.5;
+		
 		$finalArray = array (
 			'graph' => array (
 				'title' => 'Load Avg (Last 24 Hours)' ,
@@ -310,7 +329,7 @@ switch ( $data ) {
 				'datasequences' => '' ,
 				'yAxis' => array (
 					'minValue' => 0 ,
-					'maxValue' => 6 ,
+					'maxValue' => $highest_load ,
 				) ,
 			)
 		);
