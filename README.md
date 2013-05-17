@@ -2,7 +2,7 @@
 This is a collection of graphs from iStat Server 2's database for [Panic's Status Board](http://panic.com/statusboard/) app for iPad.
 
 ## Usage
-1. Chuck this file anywhere on your server accessible by Apache
+1. Chuck this file anywhere on your server accessible by Apache (and the outside world, or just in your network)
 2. Add a graph in Status Board with the URI ```/path/to/file/istat.php?data=xxx```
 
 Data Types:
