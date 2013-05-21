@@ -1,6 +1,6 @@
 <?php
 
-$data = $_GET['data'];
+$data = filter_input ( INPUT_GET , 'data' , FILTER_SANITIZE_STRING );
 
 // From: http://stackoverflow.com/a/5501447
 function formatSizeUnits ( $bytes ) {
