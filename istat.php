@@ -62,7 +62,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i:s' ,  $row['time'] );
+			$time = date ( 'H:i' ,  $row['time'] );
 			
 			$cpu_user[] = array ( 'title' => $time , 'value' => $row['user'] );
 			
@@ -123,7 +123,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i:s' ,  $row['time'] );
+			$time = date ( 'H:i' ,  $row['time'] );
 			
 			$cpu_user[] = array ( 'title' => $time , 'value' => $row['user'] );
 			
@@ -196,7 +196,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i:s' ,  $row['time'] );
+			$time = date ( 'H:i' ,  $row['time'] );
 			
 			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] ) );
 			
@@ -275,7 +275,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i:s' ,  $row['time'] );
+			$time = date ( 'H:i' ,  $row['time'] );
 			
 			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] ) );
 			
@@ -359,7 +359,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i:s' ,  $row['time'] );
+			$time = date ( 'H:i' ,  $row['time'] );
 			
 			$load_one[] = array ( 'title' => $time , 'value' => $row['one'] );
 			
@@ -443,7 +443,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i:s' ,  $row['time'] );
+			$time = date ( 'H:i' ,  $row['time'] );
 			
 			$load_one[] = array ( 'title' => $time , 'value' => $row['one'] );
 			
