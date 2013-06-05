@@ -32,5 +32,11 @@ you'd like to get readings from the list below:
 * __TN0D__: Northbridge Diode
 * __TN0P__: Northbridge Proximity
 
+Once you've got the sensors you'd like to read, put them into a query string like below:
+
+```&temps=TC0D``` or ```&temps=TC0D,TC0H```
+
+Multiple temps __MUST__ be comma delimited.
+
 ## Alert!
 This has been tested on Mac OS X 10.8.3 with the default PHP runtime environment with iStat Server 2.12
