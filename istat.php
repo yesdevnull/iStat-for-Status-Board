@@ -1,6 +1,7 @@
 <?php
 
 $data = filter_input ( INPUT_GET , 'data' , FILTER_SANITIZE_STRING );
+$temps = $_GET['temps'];
 
 // From: http://stackoverflow.com/a/5501447
 function formatSizeUnits ( $bytes , $force = false ) {
@@ -20,6 +21,22 @@ function formatSizeUnits ( $bytes , $force = false ) {
 
 	return $bytes;
 }
+
+// Thanks to my buddy Jedda (http://jedda.me) for the list of known SMC temp registers
+// https://github.com/jedda/OSX-Monitoring-Tools/blob/master/check_osx_smc/known-registers.md
+$tempArray = array (
+	'TC0D' => 'CPU A Temp' ,
+	'TC0H' => 'CPU A Heatsink' ,
+	'TC0P' => 'CPU A Proximity' ,
+	'TA0P' => 'Ambient Air 1' ,
+	'TA1P' => 'Ambient Air 2' ,
+	'TM0S' => 'Memory Slot 1' ,
+	'TMBS' => 'Memory Slot 2' ,
+	'TM0P' => 'Memory Slots Proximity' ,
+	'TH0P' => 'HDD Bay' ,
+	'TN0D' => 'Northbridge Diode' ,
+	'TN0P' => 'Northbridge Proximity' ,
+);
 
 $db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
 
@@ -65,7 +82,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i' ,  $row['time'] );
+			$time = date ( 'H:i' , $row['time'] );
 			
 			$cpu_user[] = array ( 'title' => $time , 'value' => $row['user'] );
 			
@@ -119,7 +136,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i' ,  $row['time'] );
+			$time = date ( 'H:i' , $row['time'] );
 			
 			$cpu_user[] = array ( 'title' => $time , 'value' => $row['user'] );
 			
@@ -185,7 +202,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i' ,  $row['time'] );
+			$time = date ( 'H:i' , $row['time'] );
 			
 			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] * 1024 , true ) );
 			
@@ -257,7 +274,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i' ,  $row['time'] );
+			$time = date ( 'H:i' , $row['time'] );
 			
 			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] * 1024 , true ) );
 			
@@ -336,7 +353,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i' ,  $row['time'] );
+			$time = date ( 'H:i' , $row['time'] );
 			
 			$load_one[] = array ( 'title' => $time , 'value' => round ( $row['one'] , 2 ) );
 			
@@ -415,7 +432,7 @@ switch ( $data ) {
 		$stmt->execute();
 		
 		foreach ( $stmt->fetchAll() as $row ) {
-			$time = date ( 'H:i' ,  $row['time'] );
+			$time = date ( 'H:i' , $row['time'] );
 			
 			$load_one[] = array ( 'title' => $time , 'value' => round( $row['one'] , 2 ) );
 			
@@ -442,6 +459,86 @@ switch ( $data ) {
 			) ,
 		);
 	
+	break;
+	
+	/* !Temp Hour */
+	case 'temp_hour' :
+		
+		$explodedTempArray = explode ( ',' , $temps );
+		
+		// Remove any temp sensors that aren't in my list
+		foreach ( $explodedTempArray as $temp ) {
+			if ( array_key_exists ( $temp , $tempArray ) ) {
+				$finalExplodedTempArray[] = $temp;
+			}
+		}
+		
+		$finalArray['graph']['title'] = 'Temp Sensors (Last Hour)';
+		$finalArray['graph']['yAxis'] = array (
+			'units' => array (
+				'suffix' => '°'
+			)
+		);
+		
+		// Had to remove the modulus equation from this statement due to the uuid IN where clause, it was breaking
+		// the SQL query when I had both in :(
+		$sql = 'SELECT
+					time ,
+					uuid ,
+					value
+				FROM
+					hour_sensorhistory
+				WHERE
+					uuid IN (';
+		
+		foreach ( $finalExplodedTempArray as $key => $temp ) {
+			$sql .= ' "' . $temp . '" ,';
+		}
+		
+		$num = strlen ( $sql ) - 1;
+		
+		if ( $sql{$num} == ',' ) {
+			$sql = substr ( $sql , 0 , -1 );	
+		}
+		
+		// For each temp sensor I want 600 results
+		$tempLimitCount = count ( $finalExplodedTempArray ) * 600;
+		
+		$sql .= ' )
+				ORDER BY
+					time
+				ASC
+				LIMIT ' . $tempLimitCount;
+		
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		foreach ( $stmt->fetchAll() as $row ) {
+			$time = date ( 'H:i' , $row['time'] );
+			
+			if ( in_array ( $row['uuid'] , $finalExplodedTempArray ) ) {
+				$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] , 2 ) );
+			}
+		}
+		
+		// I think this is a really gross way of doing it, but it's the only way I can figure 
+		// out how to do it right now
+		foreach ( $finalTemp as $sensor => $unfilteredArray ) {
+			for ( $i = 0 ; $i <= count ( $unfilteredArray ) ; $i++ ) {
+				if ( $i % 30 == 0 && $unfilteredArray[$i] != 0 ) {
+					$newArray[$sensor][] = $unfilteredArray[$i];
+				}
+			}
+			
+			$finalDataSequence[] = array (
+				'title' => $tempArray[$sensor] ,
+				'datapoints' => $newArray[$sensor]
+			);
+		}
+		
+		$finalArray['graph']['datasequences'] = $finalDataSequence;
+		
 	break;
 }
 
