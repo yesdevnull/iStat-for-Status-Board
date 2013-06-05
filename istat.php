@@ -3,8 +3,8 @@
 $data = filter_input ( INPUT_GET , 'data' , FILTER_SANITIZE_STRING );
 
 // From: http://stackoverflow.com/a/5501447
-function formatSizeUnits ( $bytes ) {
-	if ( $bytes >= 1073741824 ) {
+function formatSizeUnits ( $bytes , $force = false ) {
+	if ( $bytes >= 1073741824 || $force == true ) {
 		$bytes = number_format ( $bytes / 1073741824 , 2 );
 	} elseif ( $bytes >= 1048576 ) {
 		$bytes = number_format ( $bytes / 1048576 , 2 );
@@ -167,7 +167,7 @@ switch ( $data ) {
 				'refreshEveryNSeconds' => '60' ,
 				'yAxis' => array (
 					'minValue' => 0 ,
-					'maxValue' => formatSizeUnits( $total_ram ) ,
+					'maxValue' => formatSizeUnits( $total_ram * 1024 ) ,
 					'units' => array (
 						'suffix' => ' GB' ,
 					)
@@ -198,11 +198,11 @@ switch ( $data ) {
 		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i' ,  $row['time'] );
 			
-			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] ) );
+			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] * 1024 , true ) );
 			
-			$ram_active[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['active'] + $row['wired'] ) );
+			$ram_active[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , true ) );
 			
-			$ram_inactive[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['inactive'] + $row['active'] + $row['wired'] ) );
+			$ram_inactive[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['inactive'] * 1024 ) + ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , true ) );
 		}
 		
 		$finalArray['graph']['datasequences'] = array (
@@ -246,7 +246,7 @@ switch ( $data ) {
 				'refreshEveryNSeconds' => '60' ,
 				'yAxis' => array (
 					'minValue' => 0 ,
-					'maxValue' => formatSizeUnits( $total_ram ) ,
+					'maxValue' => formatSizeUnits( $total_ram * 1024 ) ,
 					'units' => array (
 						'suffix' => ' GB' ,
 					)
@@ -277,11 +277,11 @@ switch ( $data ) {
 		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i' ,  $row['time'] );
 			
-			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] ) );
+			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] * 1024 , true ) );
 			
-			$ram_active[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['active'] + $row['wired'] ) );
+			$ram_active[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , true ) );
 			
-			$ram_inactive[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['inactive'] + $row['active'] + $row['wired'] ) );
+			$ram_inactive[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['inactive'] * 1024 ) + ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , true ) );
 		}
 		
 		$finalArray['graph']['datasequences'] = array (
