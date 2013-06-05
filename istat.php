@@ -23,23 +23,26 @@ function formatSizeUnits ( $bytes , $force = false ) {
 
 $db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
 
+$finalArray = array (
+	'graph' => array (
+		'title' => '' ,
+		'type' => 'line' ,
+		'refreshEveryNSeconds' => '120' ,
+		'datasequences' => '' ,
+		'yAxis' => array ()
+	)
+);
+
 switch ( $data ) {
 	/* !CPU Day */
 	case 'cpu_day' :
-
-		$finalArray = array (
-			'graph' => array (
-				'title' => 'CPU History (Last 24 Hours)' ,
-				'type' => 'line' ,
-				'refreshEveryNSeconds' => '60' ,
-				'datasequences' => '' ,
-				'yAxis' => array (
-					'minValue' => 0 ,
-					'maxValue' => 100 ,
-					'units' => array (
-						'suffix' => '%' ,
-					) ,
-				) ,
+		
+		$finalArray['graph']['title'] = 'CPU History (Last 24 Hours)';
+		$finalArray['graph']['yAxis'] = array (
+			'minValue' => 0 ,
+			'maxValue' => 100 ,
+			'units' => array (
+				'suffix' => '%' ,
 			)
 		);
 		
@@ -87,20 +90,13 @@ switch ( $data ) {
 	
 	/* !CPU Hour */
 	case 'cpu_hour' :
-
-		$finalArray = array (
-			'graph' => array (
-				'title' => 'CPU History (Last Hour)' ,
-				'type' => 'line' ,
-				'refreshEveryNSeconds' => '60' ,
-				'datasequences' => '' ,
-				'yAxis' => array (
-					'minValue' => 0 ,
-					'maxValue' => 100 ,
-					'units' => array (
-						'suffix' => '%' ,
-					) ,
-				) ,
+		
+		$finalArray['graph']['title'] = 'CPU History (Last Hour)';
+		$finalArray['graph']['yAxis'] = array (
+			'minValue' => 0 ,
+			'maxValue' => 100 ,
+			'units' => array (
+				'suffix' => '%' ,
 			)
 		);
 		
@@ -159,20 +155,13 @@ switch ( $data ) {
 		$result = $stmt->fetch();
 		
 		$total_ram = $result['total'];
-
-		$finalArray = array (
-			'graph' => array (
-				'title' => 'RAM History (Last 24 Hours)' ,
-				'type' => 'line' ,
-				'refreshEveryNSeconds' => '60' ,
-				'yAxis' => array (
-					'minValue' => 0 ,
-					'maxValue' => formatSizeUnits( $total_ram * 1024 ) ,
-					'units' => array (
-						'suffix' => ' GB' ,
-					)
-				) ,
-				'datasequences' => '' ,
+		
+		$finalArray['graph']['title'] = 'RAM History (Last 24 Hours)';
+		$finalArray['graph']['yAxis'] = array (
+			'minValue' => 0 ,
+			'maxValue' => formatSizeUnits( $total_ram * 1024 ) ,
+			'units' => array (
+				'suffix' => ' GB' ,
 			)
 		);
 		
@@ -238,20 +227,13 @@ switch ( $data ) {
 		$result = $stmt->fetch();
 		
 		$total_ram = $result['total'];
-
-		$finalArray = array (
-			'graph' => array (
-				'title' => 'RAM History (Last Hour)' ,
-				'type' => 'line' ,
-				'refreshEveryNSeconds' => '60' ,
-				'yAxis' => array (
-					'minValue' => 0 ,
-					'maxValue' => formatSizeUnits( $total_ram * 1024 ) ,
-					'units' => array (
-						'suffix' => ' GB' ,
-					)
-				) ,
-				'datasequences' => '' ,
+		
+		$finalArray['graph']['title'] = 'RAM History (Last Hour)';
+		$finalArray['graph']['yAxis'] = array (
+			'minValue' => 0 ,
+			'maxValue' => formatSizeUnits( $total_ram * 1024 ) ,
+			'units' => array (
+				'suffix' => ' GB' ,
 			)
 		);
 		
@@ -306,7 +288,7 @@ switch ( $data ) {
 	
 	/* !Load Day */
 	case 'load_day' :
-		
+				
 		$sql = 'SELECT
 					MAX( one ) AS one ,
 					MAX( five ) AS five ,
@@ -326,16 +308,11 @@ switch ( $data ) {
 		
 		$highest_load = $max + 0.5;
 		
-		$finalArray = array (
-			'graph' => array (
-				'title' => 'Load Avg (Last 24 Hours)' ,
-				'type' => 'line' ,
-				'refreshEveryNSeconds' => '60' ,
-				'datasequences' => '' ,
-				'yAxis' => array (
-					'minValue' => 0 ,
-					'maxValue' => $highest_load ,
-				) ,
+		$finalArray['graph']['title'] = 'Load Avg (Last 24 Hours)';
+		$finalArray['graph']['yAxis'] = array (
+			'yAxis' => array (
+				'minValue' => 0 ,
+				'maxValue' => $highest_load ,
 			)
 		);
 		
@@ -361,11 +338,11 @@ switch ( $data ) {
 		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i' ,  $row['time'] );
 			
-			$load_one[] = array ( 'title' => $time , 'value' => $row['one'] );
+			$load_one[] = array ( 'title' => $time , 'value' => round ( $row['one'] , 2 ) );
 			
-			$load_five[] = array ( 'title' => $time , 'value' => $row['five'] );
+			$load_five[] = array ( 'title' => $time , 'value' => round ( $row['five'] , 2 ) );
 			
-			$load_fifteen[] = array ( 'title' => $time , 'value' => $row['fifteen'] );
+			$load_fifteen[] = array ( 'title' => $time , 'value' => round ( $row['fifteen'] , 2 ) );
 		}
 		
 		$finalArray['graph']['datasequences'] = array (
@@ -410,16 +387,11 @@ switch ( $data ) {
 		
 		$highest_load = $max + 0.5;
 		
-		$finalArray = array (
-			'graph' => array (
-				'title' => 'Load Avg (Last Hour)' ,
-				'type' => 'line' ,
-				'refreshEveryNSeconds' => '60' ,
-				'datasequences' => '' ,
-				'yAxis' => array (
-					'minValue' => 0 ,
-					'maxValue' => $highest_load ,
-				) ,
+		$finalArray['graph']['title'] = 'Load Avg (Last Hour)';
+		$finalArray['graph']['yAxis'] = array (
+			'yAxis' => array (
+				'minValue' => 0 ,
+				'maxValue' => $highest_load ,
 			)
 		);
 		
@@ -445,11 +417,11 @@ switch ( $data ) {
 		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i' ,  $row['time'] );
 			
-			$load_one[] = array ( 'title' => $time , 'value' => $row['one'] );
+			$load_one[] = array ( 'title' => $time , 'value' => round( $row['one'] , 2 ) );
 			
-			$load_five[] = array ( 'title' => $time , 'value' => $row['five'] );
+			$load_five[] = array ( 'title' => $time , 'value' => round ( $row['five'] , 2 ) );
 			
-			$load_fifteen[] = array ( 'title' => $time , 'value' => $row['fifteen'] );
+			$load_fifteen[] = array ( 'title' => $time , 'value' => round ( $row['fifteen'] , 2 ) );
 		}
 		
 		$finalArray['graph']['datasequences'] = array (
