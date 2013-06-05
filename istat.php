@@ -176,7 +176,7 @@ switch ( $data ) {
 		$finalArray['graph']['title'] = 'RAM History (Last 24 Hours)';
 		$finalArray['graph']['yAxis'] = array (
 			'minValue' => 0 ,
-			'maxValue' => formatSizeUnits( $total_ram * 1024 ) ,
+			'maxValue' => round ( formatSizeUnits( $total_ram * 1024 ) ) ,
 			'units' => array (
 				'suffix' => ' GB' ,
 			)
@@ -248,7 +248,7 @@ switch ( $data ) {
 		$finalArray['graph']['title'] = 'RAM History (Last Hour)';
 		$finalArray['graph']['yAxis'] = array (
 			'minValue' => 0 ,
-			'maxValue' => formatSizeUnits( $total_ram * 1024 ) ,
+			'maxValue' => round ( formatSizeUnits( $total_ram * 1024 ) ) ,
 			'units' => array (
 				'suffix' => ' GB' ,
 			)
