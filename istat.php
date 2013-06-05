@@ -34,8 +34,14 @@ $tempArray = array (
 	'TMBS' => 'Memory Slot 2' ,
 	'TM0P' => 'Memory Slots Proximity' ,
 	'TH0P' => 'HDD Bay' ,
+	'TH1P' => 'HDD Bay 2' ,
+	'TH2P' => 'HDD Bay 3', 
+	'TH3P' => 'HDD Bay 4' ,
 	'TN0D' => 'Northbridge Diode' ,
 	'TN0P' => 'Northbridge Proximity' ,
+	'TI0P' => 'Thunderbolt Proximity 1' ,
+	'TI1P' => 'Thunderbolt Proximity 2' ,
+	
 );
 
 $db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
