@@ -1,7 +1,6 @@
 <?php
 
 $data = filter_input ( INPUT_GET , 'data' , FILTER_SANITIZE_STRING );
-//$temps = $_GET['temps'];
 $temps = filter_input ( INPUT_GET , 'temps' , FILTER_SANITIZE_STRING );
 
 // From: http://stackoverflow.com/a/5501447
@@ -330,7 +329,7 @@ switch ( $data ) {
 		
 		$max = max ( $values );
 		
-		$highest_load = $max + 0.5;
+		$highest_load = floor ( $max + 0.5 );
 		
 		$finalArray['graph']['title'] = 'Load Avg (Last 24 Hours)';
 		$finalArray['graph']['yAxis'] = array (
@@ -409,7 +408,7 @@ switch ( $data ) {
 		
 		$max = max ( $values );
 		
-		$highest_load = $max + 0.5;
+		$highest_load = floor ( $max + 0.5 );
 		
 		$finalArray['graph']['title'] = 'Load Avg (Last Hour)';
 		$finalArray['graph']['yAxis'] = array (
