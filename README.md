@@ -29,8 +29,14 @@ you'd like to get readings from the list below:
 * __TMBS__: Memory Slot 2
 * __TM0P__: Memory Slots Proximity
 * __TH0P__: HDD Bay
+* __TH1P__: HDD 2 Bay
+* __TH2P__: HDD 3 Bay
+* __TH3P__: HDD 4 Bay
 * __TN0D__: Northbridge Diode
 * __TN0P__: Northbridge Proximity
+* __TI0P__: Thunderbolt Proximity 1
+* __TI1P__: Thunderbolt Proximity 2
+* __F0Ac__: Fan Speed (reported speed as actual speed / 100)
 
 Once you've got the sensors you'd like to read, put them into a query string like below:
 
