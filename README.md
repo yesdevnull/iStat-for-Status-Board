@@ -45,5 +45,10 @@ Once you've got the sensors you'd like to read, put them into a query string lik
 
 Multiple temps __MUST__ be comma delimited.
 
+####Optional Temperature Scale
+You can optionally specify the desired temperature scale (Celsius or Fahrenheit). If no scale is specified, the scale will default to Celsius. Simply add to the query string like below:
+
+```&temp_unit=f``` or ```&temp_unit=c```
+
 ## Alert!
 This has been tested on Mac OS X 10.8.3 with the default PHP runtime environment with iStat Server 2.12
