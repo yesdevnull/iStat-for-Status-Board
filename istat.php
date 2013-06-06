@@ -41,7 +41,7 @@ $tempArray = array (
 	'TN0P' => 'Northbridge Proximity' ,
 	'TI0P' => 'Thunderbolt Proximity 1' ,
 	'TI1P' => 'Thunderbolt Proximity 2' ,
-	
+	'F0Ac' => 'Fan Speed' ,
 );
 
 $db = new PDO ( 'sqlite:/Library/Application Support/iStat Server/databases/local.db' );
@@ -470,6 +470,7 @@ switch ( $data ) {
 	/* !Temp Hour */
 	case 'temp_hour' :
 		
+		// Get all our temps from the user
 		$explodedTempArray = explode ( ',' , $temps );
 		
 		// Remove any temp sensors that aren't in my list
@@ -501,6 +502,7 @@ switch ( $data ) {
 			$sql .= ' "' . $temp . '" ,';
 		}
 		
+		// If there's a stray comma, we shoot to kill
 		$num = strlen ( $sql ) - 1;
 		
 		if ( $sql{$num} == ',' ) {
@@ -520,11 +522,17 @@ switch ( $data ) {
 		
 		$stmt->execute();
 		
+		// Build up our massive resultset from the SQLite DB
 		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i' , $row['time'] );
 			
 			if ( in_array ( $row['uuid'] , $finalExplodedTempArray ) ) {
-				$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] , 2 ) );
+				// If it's a fan, divide by 100 to scale the graph correctly
+				if ( $row['uuid'] == 'F0Ac' ) {
+					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] / 100 , 2 ) );
+				} else {
+					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] , 2 ) );
+				}
 			}
 		}
 		
@@ -532,11 +540,13 @@ switch ( $data ) {
 		// out how to do it right now
 		foreach ( $finalTemp as $sensor => $unfilteredArray ) {
 			for ( $i = 0 ; $i <= count ( $unfilteredArray ) ; $i++ ) {
+				// I only want every 30th row to get an even spread over the last hour
 				if ( $i % 30 == 0 && $unfilteredArray[$i] != 0 ) {
 					$newArray[$sensor][] = $unfilteredArray[$i];
 				}
 			}
 			
+			// Construct the final array for each sensor
 			$finalDataSequence[] = array (
 				'title' => $tempArray[$sensor] ,
 				'datapoints' => $newArray[$sensor]
