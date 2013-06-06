@@ -2,6 +2,13 @@
 
 $data = filter_input ( INPUT_GET , 'data' , FILTER_SANITIZE_STRING );
 $temps = filter_input ( INPUT_GET , 'temps' , FILTER_SANITIZE_STRING );
+$temp_unit = filter_input ( INPUT_GET , 'temp_unit' , FILTER_SANITIZE_STRING );
+
+//default to Celsius for temperature measurements.
+if (!isset($temp_unit)) {
+	$temp_unit = 'c';
+}
+
 
 // From: http://stackoverflow.com/a/5501447
 function formatSizeUnits ( $bytes , $force = false ) {
@@ -526,7 +533,14 @@ switch ( $data ) {
 				// If it's a fan, divide by 100 to scale the graph correctly
 				if ( $row['uuid'] == 'F0Ac' ) {
 					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] / 100 , 2 ) );
-				} else {
+				}
+				
+				//if temp scale is Fahrenheit, convert (C * 1.8 + 32).
+				elseif ($temp_unit == 'f') {
+					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( ($row['value'] * 1.8 + 32) , 2 ) );
+				} 
+				
+				else {
 					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] , 2 ) );
 				}
 			}
@@ -616,7 +630,14 @@ switch ( $data ) {
 				// If it's a fan, divide by 100 to scale the graph correctly
 				if ( $row['uuid'] == 'F0Ac' ) {
 					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] / 100 , 2 ) );
-				} else {
+				} 
+				
+				//if temp scale is Fahrenheit, convert (C * 1.8 + 32).
+				elseif ($temp_unit == 'f') {
+					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( ($row['value'] * 1.8 + 32) , 2 ) );
+				} 
+				
+				else {
 					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] , 2 ) );
 				}
 			}
