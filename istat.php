@@ -1,7 +1,8 @@
 <?php
 
 $data = filter_input ( INPUT_GET , 'data' , FILTER_SANITIZE_STRING );
-$temps = $_GET['temps'];
+//$temps = $_GET['temps'];
+$temps = filter_input ( INPUT_GET , 'temps' , FILTER_SANITIZE_STRING );
 
 // From: http://stackoverflow.com/a/5501447
 function formatSizeUnits ( $bytes , $force = false ) {
