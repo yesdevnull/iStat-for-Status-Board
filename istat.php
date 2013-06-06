@@ -467,6 +467,96 @@ switch ( $data ) {
 	
 	break;
 	
+	/* !Temp Day */
+	case 'temp_day' :
+	
+		// Get all our temps from the user
+		$explodedTempArray = explode ( ',' , $temps );
+		
+		// Remove any temp sensors that aren't in my list
+		foreach ( $explodedTempArray as $temp ) {
+			if ( array_key_exists ( $temp , $tempArray ) ) {
+				$finalExplodedTempArray[] = $temp;
+			}
+		}
+		
+		$finalArray['graph']['title'] = 'Temp Sensors (Last 24 Hours)';
+		$finalArray['graph']['yAxis'] = array (
+			'units' => array (
+				'suffix' => '°'
+			)
+		);
+		
+		// Had to remove the modulus equation from this statement due to the uuid IN where clause, it was breaking
+		// the SQL query when I had both in :(
+		$sql = 'SELECT
+					time ,
+					uuid ,
+					value
+				FROM
+					day_sensorhistory
+				WHERE
+					uuid IN (';
+		
+		foreach ( $finalExplodedTempArray as $key => $temp ) {
+			$sql .= ' "' . $temp . '" ,';
+		}
+		
+		// If there's a stray comma, we shoot to kill
+		$num = strlen ( $sql ) - 1;
+		
+		if ( $sql{$num} == ',' ) {
+			$sql = substr ( $sql , 0 , -1 );	
+		}
+		
+		// For each temp sensor I want 600 results
+		$tempLimitCount = count ( $finalExplodedTempArray ) * 600;
+		
+		$sql .= ' )
+				ORDER BY
+					time
+				ASC
+				LIMIT ' . $tempLimitCount;
+		
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		// Build up our massive resultset from the SQLite DB
+		foreach ( $stmt->fetchAll() as $row ) {
+			$time = date ( 'H:i' , $row['time'] );
+			
+			if ( in_array ( $row['uuid'] , $finalExplodedTempArray ) ) {
+				// If it's a fan, divide by 100 to scale the graph correctly
+				if ( $row['uuid'] == 'F0Ac' ) {
+					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] / 100 , 2 ) );
+				} else {
+					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] , 2 ) );
+				}
+			}
+		}
+		
+		// I think this is a really gross way of doing it, but it's the only way I can figure 
+		// out how to do it right now
+		foreach ( $finalTemp as $sensor => $unfilteredArray ) {
+			for ( $i = 0 ; $i <= count ( $unfilteredArray ) ; $i++ ) {
+				// I only want every 30th row to get an even spread over the last hour
+				if ( $i % 30 == 0 && $unfilteredArray[$i] != 0 ) {
+					$newArray[$sensor][] = $unfilteredArray[$i];
+				}
+			}
+			
+			// Construct the final array for each sensor
+			$finalDataSequence[] = array (
+				'title' => $tempArray[$sensor] ,
+				'datapoints' => $newArray[$sensor]
+			);
+		}
+		
+		$finalArray['graph']['datasequences'] = $finalDataSequence;
+	
+	break;
+	
 	/* !Temp Hour */
 	case 'temp_hour' :
 		
