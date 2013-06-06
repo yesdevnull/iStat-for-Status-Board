@@ -15,6 +15,7 @@ Data Types:
 * load_hour : CPU load for the last 60 minutes
 * load_day  : CPU load for the last 24 hours
 * temp_hour : Temp sensors for the last 60 minutes
+* temp_day  : Temp sensors for the last 24 hours
 
 ### Temperature Sensor Usage
 To use the temp sensor graphs you need to provide another parameter which should have a list of sensors
