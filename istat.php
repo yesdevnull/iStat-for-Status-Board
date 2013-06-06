@@ -329,14 +329,12 @@ switch ( $data ) {
 		
 		$max = max ( $values );
 		
-		$highest_load = floor ( $max + 0.5 );
+		$highest_load = round ( $max + 0.5 , 2 );
 		
 		$finalArray['graph']['title'] = 'Load Avg (Last 24 Hours)';
 		$finalArray['graph']['yAxis'] = array (
-			'yAxis' => array (
-				'minValue' => 0 ,
-				'maxValue' => $highest_load ,
-			)
+			'minValue' => 0 ,
+			'maxValue' => $highest_load ,
 		);
 		
 		$sql = 'SELECT
@@ -408,14 +406,12 @@ switch ( $data ) {
 		
 		$max = max ( $values );
 		
-		$highest_load = floor ( $max + 0.5 );
+		$highest_load = round ( $max + 0.5 , 2 );
 		
 		$finalArray['graph']['title'] = 'Load Avg (Last Hour)';
 		$finalArray['graph']['yAxis'] = array (
-			'yAxis' => array (
-				'minValue' => 0 ,
-				'maxValue' => $highest_load ,
-			)
+			'minValue' => 0 ,
+			'maxValue' => $highest_load ,
 		);
 		
 		$sql = 'SELECT
