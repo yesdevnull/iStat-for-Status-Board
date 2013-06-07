@@ -28,7 +28,9 @@ if ( !isset ( $temp_unit ) ) {
 
 // From: http://stackoverflow.com/a/5501447
 function formatSizeUnits ( $bytes , $force = false ) {
-	if ( $bytes >= 1073741824 || $force == true ) {
+	if ( $bytes >= 1099511627776 || $force == 'TB' ) {
+		$bytes = number_format ( $bytes / 1099511627776 , 2 );
+	} elseif ( $bytes >= 1073741824 || $force == 'GB' ) {
 		$bytes = number_format ( $bytes / 1073741824 , 2 );
 	} elseif ( $bytes >= 1048576 ) {
 		$bytes = number_format ( $bytes / 1048576 , 2 );
@@ -42,7 +44,7 @@ function formatSizeUnits ( $bytes , $force = false ) {
 		$bytes = 0;
 	}
 
-	return $bytes;
+	return round ( $bytes , 2 );
 }
 
 // Thanks to my buddy Jedda (http://jedda.me) for the list of known SMC temp registers
@@ -233,11 +235,11 @@ switch ( $data ) {
 		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i' , $row['time'] );
 			
-			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] * 1024 , true ) );
+			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] * 1024 , 'GB' ) );
 			
-			$ram_active[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , true ) );
+			$ram_active[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , 'GB' ) );
 			
-			$ram_inactive[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['inactive'] * 1024 ) + ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , true ) );
+			$ram_inactive[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['inactive'] * 1024 ) + ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , 'GB' ) );
 		}
 		
 		$finalArray['graph']['datasequences'] = array (
@@ -305,11 +307,11 @@ switch ( $data ) {
 		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i' , $row['time'] );
 			
-			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] * 1024 , true ) );
+			$ram_wired[] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['wired'] * 1024 , 'GB' ) );
 			
-			$ram_active[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , true ) );
+			$ram_active[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , 'GB' ) );
 			
-			$ram_inactive[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['inactive'] * 1024 ) + ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , true ) );
+			$ram_inactive[] = array ( 'title' => $time , 'value' => formatSizeUnits ( ( $row['inactive'] * 1024 ) + ( $row['active'] * 1024 ) + ( $row['wired'] * 1024 ) , 'GB' ) );
 		}
 		
 		$finalArray['graph']['datasequences'] = array (
@@ -336,11 +338,6 @@ switch ( $data ) {
 	case 'disk_month' :
 		
 		$finalArray['graph']['title'] = 'Disk Usage (Last Month)';
-		$finalArray['graph']['yAxis'] = array (
-			'units' => array (
-				'suffix' => ' GB' ,
-			) ,
-		);
 		
 		// Whoops, did you forget to set any $disks in the query string?
 		if ( !isset ( $disks ) ) {
@@ -408,8 +405,14 @@ switch ( $data ) {
 		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'd/m' , $row['time'] );
 			
-			$diskDataSequence[$row['uuid']][] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['used'] ) );
+			$diskDataSequence[$row['uuid']][] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['used'] * 1024 * 1024 ) );
 		}
+		
+		$finalArray['graph']['yAxis'] = array (
+			'units' => array (
+				'suffix' => ' GB' ,
+			) ,
+		);
 		
 		// I think this is a really gross way of doing it, but it's the only way I can figure 
 		// out how to do it right now
