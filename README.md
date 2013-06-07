@@ -18,6 +18,8 @@ Data Types:
 * **temp_day:** Temp sensors for the last 24 hours
 * **temp_hour :** Temp sensors for the last 60 minutes
 
+Also included is a graph modified to hide the X axis (timestamps).  To do this, simple add ```&hideXAxis``` anywhere in your query string.
+
 ### CPU Graph Usage
 There's an optional parameter called ```$cores``` that you can provide to better scale the graph.  By default, we assume that your machine is a dual-core machine, but you can override that using the ```$cores``` variable.  Simply add to the query string like such:
 
