@@ -8,14 +8,15 @@ This is a collection of graphs from iStat Server 2's database for [Panic's Statu
 2. Add a graph in Status Board with the URI ```/path/to/file/istat.php?data=xxx```
 
 Data Types:
-* ram_hour  : RAM usage for the last 60 minutes
-* ram_day   : RAM usage for the last 24 hours
-* cpu_hour  : CPU usage for the last 60 minutes
-* cpu_day   : CPU usage for the last 24 hours
-* load_hour : CPU load for the last 60 minutes
-* load_day  : CPU load for the last 24 hours
-* temp_hour : Temp sensors for the last 60 minutes
-* temp_day  : Temp sensors for the last 24 hours
+* **cpu_day:** CPU usage for the last 24 hours
+* **cpu_hour:** CPU usage for the last 60 minutes
+* **ram_day:** RAM usage for the last 24 hours
+* **ram_hour:** RAM usage for the last 60 minutes
+* **disk_month:** Disk usage for the last month
+* **load_day:** CPU load for the last 24 hours
+* **load_hour:** CPU load for the last 60 minutes
+* **temp_day:** Temp sensors for the last 24 hours
+* **temp_hour :** Temp sensors for the last 60 minutes
 
 ### CPU Graph Usage
 There's an optional parameter called ```$cores``` that you can provide to better scale the graph.  By default, we assume that your machine is a dual-core machine, but you can override that using the ```$cores``` variable.  Simply add to the query string like such:
@@ -24,7 +25,35 @@ There's an optional parameter called ```$cores``` that you can provide to better
 
 Remember, this defaults to 2, so if your machine is dual-core, don't worry about passing ```$cores``` as we assume dual-core.
 
-### Temperature Sensor Usage
+### Disks Graph Usage
+To monitor your disks, iStat for Status Board needs the UUID and name of each disk to monitor.  These should be put into an array in a file called ```istat_disks.php``` and stored in the same location as the rest of this code. 
+
+Example:
+
+```php
+<?php
+
+$monitoredDisks = array (
+	'1' => array (
+		'uuid' => 'YOUR_DISK_UUID' ,
+		'name' => 'Macintosh HD' ,
+	) ,
+	'2' => array (
+		'uuid' => 'ANOTHER_DISK_UUID' ,
+		'name' => 'Another Disk Tracked By iStat Server' ,
+	) ,
+);
+```
+
+To get the UUID of your disk, go to Disk Utility, then select the volume and then click Info.  Copy the string next to **Universal Unique Identifier:**.  Name should be the same name as the volume, but you can call it something else if you want.
+
+Once you've made that file, disks should then be added to the query string like so
+
+```&disks=1``` or ```&disks=1,2```
+
+Where the number(s) are the number you assigned the disks in ```istat_disks.php```.
+
+### Temperature Sensor Graph Usage
 To use the temp sensor graphs you need to provide another parameter which should have a list of sensors
 you'd like to get readings from the list below:
 

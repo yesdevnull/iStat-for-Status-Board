@@ -1,9 +1,20 @@
 <?php
 
 $data = filter_input ( INPUT_GET , 'data' , FILTER_SANITIZE_STRING );
+// For cpu_*
 $cores = filter_input ( INPUT_GET , 'cores' , FILTER_SANITIZE_NUMBER_INT );
+// For disk_*
+$disks = filter_input ( INPUT_GET , 'disks' , FILTER_SANITIZE_STRING );
+// For temp_*
 $temps = filter_input ( INPUT_GET , 'temps' , FILTER_SANITIZE_STRING );
 $temp_unit = filter_input ( INPUT_GET , 'temp_unit' , FILTER_SANITIZE_STRING );
+
+// Because istat_disks.php is a required file, we do some quick checks now so we can 
+// bail out early if needs be
+if ( file_exists ( 'istat_disks.php' ) ) {
+	include_once ( 'istat_disks.php' );
+	define ( 'ISTAT_DISKS_FOUND' , true );
+}
 
 // Default to 2 cores for proper graph scaling
 if ( !isset ( $cores ) ) {
@@ -14,7 +25,6 @@ if ( !isset ( $cores ) ) {
 if ( !isset ( $temp_unit ) ) {
 	$temp_unit = 'c';
 }
-
 
 // From: http://stackoverflow.com/a/5501447
 function formatSizeUnits ( $bytes , $force = false ) {
@@ -320,6 +330,106 @@ switch ( $data ) {
 			) ,
 		);
 	
+	break;
+	
+	/* !Disk Month */
+	case 'disk_month' :
+		
+		$finalArray['graph']['title'] = 'Disk Usage (Last Month)';
+		$finalArray['graph']['yAxis'] = array (
+			'units' => array (
+				'suffix' => 'GB' ,
+			) ,
+		);
+		
+		// Whoops, did you forget to set any $disks in the query string?
+		if ( !isset ( $disks ) ) {
+			$finalArray['graph']['error'] = array (
+				'message' => 'You have not provided any disks in the query string' ,
+				'detail' => 'Make sure you fill out istat_disks.php then add their numbers to the query string' ,
+			);
+			
+			break;
+		}
+		
+		// The istat_disks.php file does not exist, we need it
+		if ( !defined ( 'ISTAT_DISKS_FOUND' ) ) {
+			$finalArray['graph']['error'] = array (
+				'message' => 'Unable to locate istat_disks.php' ,
+				'detail' => 'Please make sure you\' set up the istat_disks.php with your disks and UUIDs' ,
+			);
+			
+			break;
+		}
+		
+		$explodedDisksArray = explode ( ',' , $disks );
+		
+		// Remove any int not in the $monitoredDisk array from istat_disks.php
+		foreach ( $explodedDisksArray as $disk ) {
+			if ( array_key_exists ( $disk , $monitoredDisks ) ) {
+				$finalExplodedDiskArray[] = $disk;
+				
+				// Build up a temp UUID array for the SQL query
+				$tempUUIDArray[] = $monitoredDisks[$disk]['uuid'];
+				$tempDiskArray[$monitoredDisks[$disk]['uuid']] = $monitoredDisks[$disk]['name'];
+			}
+		}
+		
+		$sql = 'SELECT
+					time ,
+					uuid ,
+					used ,
+					size
+				FROM
+					month_diskhistory
+				WHERE
+					uuid IN ( ';
+		
+		foreach ( $tempUUIDArray as $key => $uuid ) {
+			$sql .= ' "' . $uuid . '" ,';
+		}
+		
+		// If there's a stray comma, we shoot to kill
+		$num = strlen ( $sql ) - 1;
+		
+		if ( $sql{$num} == ',' ) {
+			$sql = substr ( $sql , 0 , -1 );	
+		}
+		
+		$sql .= ' )
+				ORDER BY
+					time
+				ASC';
+		
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		foreach ( $stmt->fetchAll() as $row ) {
+			$time = date ( 'd/m' , $row['time'] );
+			
+			$diskDataSequence[$row['uuid']][] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['used'] ) );
+		}
+		
+		// I think this is a really gross way of doing it, but it's the only way I can figure 
+		// out how to do it right now
+		foreach ( $diskDataSequence as $uuid => $unfilteredArray ) {
+			for ( $i = 0 ; $i <= count ( $unfilteredArray ) ; $i++ ) {
+				// I only want every 30th row to get an even spread over the last hour
+				if ( $i % 30 == 0 && $unfilteredArray[$i] != 0 ) {
+					$newArray[$uuid][] = $unfilteredArray[$i];
+				}
+			}
+			
+			// Construct the final array for each sensor
+			$finalDataSequence[] = array (
+				'title' => $tempDiskArray[$uuid] ,
+				'datapoints' => $newArray[$uuid] ,
+			);
+		}
+		
+		$finalArray['graph']['datasequences'] = $finalDataSequence;
+		
 	break;
 	
 	/* !Load Day */
