@@ -5,7 +5,7 @@ $temps = filter_input ( INPUT_GET , 'temps' , FILTER_SANITIZE_STRING );
 $temp_unit = filter_input ( INPUT_GET , 'temp_unit' , FILTER_SANITIZE_STRING );
 
 //default to Celsius for temperature measurements.
-if (!isset($temp_unit)) {
+if ( !isset ( $temp_unit ) ) {
 	$temp_unit = 'c';
 }
 
@@ -534,13 +534,10 @@ switch ( $data ) {
 				if ( $row['uuid'] == 'F0Ac' ) {
 					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] / 100 , 2 ) );
 				}
-				
-				//if temp scale is Fahrenheit, convert (C * 1.8 + 32).
-				elseif ($temp_unit == 'f') {
-					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( ($row['value'] * 1.8 + 32) , 2 ) );
-				} 
-				
-				else {
+				// If temp scale is Fahrenheit, convert (C * 1.8 + 32).
+				elseif ( $temp_unit == 'f' ) {
+					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( ( $row['value'] * 1.8 + 32 ) , 2 ) );
+				} else {
 					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] , 2 ) );
 				}
 			}
@@ -631,13 +628,10 @@ switch ( $data ) {
 				if ( $row['uuid'] == 'F0Ac' ) {
 					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] / 100 , 2 ) );
 				} 
-				
-				//if temp scale is Fahrenheit, convert (C * 1.8 + 32).
-				elseif ($temp_unit == 'f') {
-					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( ($row['value'] * 1.8 + 32) , 2 ) );
-				} 
-				
-				else {
+				// If temp scale is Fahrenheit, convert (C * 1.8 + 32).
+				elseif ( $temp_unit == 'f' ) {
+					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( ( $row['value'] * 1.8 + 32 ) , 2 ) );
+				} else {
 					$finalTemp[$row['uuid']][] = array ( 'title' => $time , 'value' => round ( $row['value'] , 2 ) );
 				}
 			}
