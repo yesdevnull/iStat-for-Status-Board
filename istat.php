@@ -338,7 +338,7 @@ switch ( $data ) {
 		$finalArray['graph']['title'] = 'Disk Usage (Last Month)';
 		$finalArray['graph']['yAxis'] = array (
 			'units' => array (
-				'suffix' => 'GB' ,
+				'suffix' => ' GB' ,
 			) ,
 		);
 		
@@ -588,6 +588,16 @@ switch ( $data ) {
 	
 	/* !Temp Day */
 	case 'temp_day' :
+		
+		// Whoops, did you forget to set any $temps in the query string?
+		if ( !isset ( $temps ) ) {
+			$finalArray['graph']['error'] = array (
+				'message' => 'You have not provided any temperature sensors in the query string' ,
+				'detail' => 'Make sure you add sensors to the query string' ,
+			);
+			
+			break;
+		}
 	
 		// Get all our temps from the user
 		$explodedTempArray = explode ( ',' , $temps );
@@ -682,6 +692,16 @@ switch ( $data ) {
 	
 	/* !Temp Hour */
 	case 'temp_hour' :
+		
+		// Whoops, did you forget to set any $temps in the query string?
+		if ( !isset ( $temps ) ) {
+			$finalArray['graph']['error'] = array (
+				'message' => 'You have not provided any temperature sensors in the query string' ,
+				'detail' => 'Make sure you add sensors to the query string' ,
+			);
+			
+			break;
+		}
 		
 		// Get all our temps from the user
 		$explodedTempArray = explode ( ',' , $temps );
