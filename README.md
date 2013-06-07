@@ -17,6 +17,13 @@ Data Types:
 * temp_hour : Temp sensors for the last 60 minutes
 * temp_day  : Temp sensors for the last 24 hours
 
+### CPU Graph Usage
+There's an optional parameter called ```$cores``` that you can provide to better scale the graph.  By default, we assume that your machine is a dual-core machine, but you can override that using the ```$cores``` variable.  Simply add to the query string like such:
+
+```&cores=4``` or ```&cores=8```
+
+Remember, this defaults to 2, so if your machine is dual-core, don't worry about passing ```$cores``` as we assume dual-core.
+
 ### Temperature Sensor Usage
 To use the temp sensor graphs you need to provide another parameter which should have a list of sensors
 you'd like to get readings from the list below:
@@ -37,13 +44,13 @@ you'd like to get readings from the list below:
 * __TN0P__: Northbridge Proximity
 * __TI0P__: Thunderbolt Proximity 1
 * __TI1P__: Thunderbolt Proximity 2
-* __F0Ac__: Fan Speed (reported speed as actual speed / 100)
+* __F0Ac__: Fan Speed (reported as actual speed / 100)
 
-Once you've got the sensors you'd like to read, put them into a query string like below:
+Once you've got the sensors you'd like to read, add them to the query string like below:
 
-```&temps=TC0D``` or ```&temps=TC0D,TC0H```
+```&temps=TC0D``` or ```&temps=TC0D,TC0H``` or ```&temps=TC0D,TC0H,F0Ac```
 
-Multiple temps __MUST__ be comma delimited.
+Multiple temps __MUST__ be comma delimited with no spaces, otherwise they will be ignored.
 
 ####Optional Temperature Scale
 You can optionally specify the desired temperature scale (Celsius or Fahrenheit). If no scale is specified, the scale will default to Celsius. Simply add to the query string like below:
