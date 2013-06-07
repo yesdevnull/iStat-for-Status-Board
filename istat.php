@@ -8,6 +8,8 @@ $disks = filter_input ( INPUT_GET , 'disks' , FILTER_SANITIZE_STRING );
 // For temp_*
 $temps = filter_input ( INPUT_GET , 'temps' , FILTER_SANITIZE_STRING );
 $temp_unit = filter_input ( INPUT_GET , 'temp_unit' , FILTER_SANITIZE_STRING );
+// For graph pretty-fying
+$hideXAxis = filter_input ( INPUT_GET , 'hideXAxis' , FILTER_SANITIZE_STRING );
 
 // Because istat_disks.php is a required file, we do some quick checks now so we can 
 // bail out early if needs be
@@ -77,9 +79,16 @@ $finalArray = array (
 		'type' => 'line' ,
 		'refreshEveryNSeconds' => '120' ,
 		'datasequences' => '' ,
-		'yAxis' => array ()
+		'yAxis' => array () ,
+		'xAxis' => array (
+			'hide' => false ,
+		)
 	)
 );
+
+if ( isset ( $hideXAxis ) ) {
+	$finalArray['graph']['xAxis']['hide'] = true;
+}
 
 switch ( $data ) {
 	/* !CPU Day */
