@@ -1,10 +1,16 @@
 <?php
 
 $data = filter_input ( INPUT_GET , 'data' , FILTER_SANITIZE_STRING );
+$cores = filter_input ( INPUT_GET , 'cores' , FILTER_SANITIZE_NUMBER_INT );
 $temps = filter_input ( INPUT_GET , 'temps' , FILTER_SANITIZE_STRING );
 $temp_unit = filter_input ( INPUT_GET , 'temp_unit' , FILTER_SANITIZE_STRING );
 
-//default to Celsius for temperature measurements.
+// Default to 2 cores for proper graph scaling
+if ( !isset ( $cores ) ) {
+	$cores = 2;
+}
+
+// Default to Celsius for temperature measurements.
 if ( !isset ( $temp_unit ) ) {
 	$temp_unit = 'c';
 }
@@ -97,10 +103,10 @@ switch ( $data ) {
 		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i' , $row['time'] );
 			
-			$cpu_user[] = array ( 'title' => $time , 'value' => $row['user'] );
+			$cpu_user[] = array ( 'title' => $time , 'value' => round ( $row['user'] * $cores , 2 ) );
 			
 			// Added together for a nice stacked graph
-			$cpu_system[] = array ( 'title' => $time , 'value' => $row['system'] + $row['user'] );
+			$cpu_system[] = array ( 'title' => $time , 'value' => round ( ( $row['system'] * $cores ) + ( $row['user'] * $cores ) , 2 ) );
 		}
 		
 		$finalArray['graph']['datasequences'] = array (
@@ -151,10 +157,10 @@ switch ( $data ) {
 		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'H:i' , $row['time'] );
 			
-			$cpu_user[] = array ( 'title' => $time , 'value' => $row['user'] );
+			$cpu_user[] = array ( 'title' => $time , 'value' => round ( $row['user'] * $cores , 2 ) );
 			
 			// Added together for a nice stacked graph
-			$cpu_system[] = array ( 'title' => $time , 'value' => $row['system'] + $row['user'] );
+			$cpu_system[] = array ( 'title' => $time , 'value' => round ( ( $row['system'] * $cores ) + ( $row['user'] * $cores ) , 2 ) );
 		}
 		
 		$finalArray['graph']['datasequences'] = array (
