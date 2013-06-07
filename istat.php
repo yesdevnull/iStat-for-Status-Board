@@ -405,10 +405,15 @@ switch ( $data ) {
 		foreach ( $stmt->fetchAll() as $row ) {
 			$time = date ( 'd/m' , $row['time'] );
 			
+			$maxValueSize[] = formatSizeUnits ( $row['size'] * 1024 * 1024 );
+			
 			$diskDataSequence[$row['uuid']][] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['used'] * 1024 * 1024 ) );
 		}
 		
+		$maxValueScale = max ( $maxValueSize );
+		
 		$finalArray['graph']['yAxis'] = array (
+			'maxValue' => $maxValueScale ,
 			'units' => array (
 				'suffix' => ' GB' ,
 			) ,
