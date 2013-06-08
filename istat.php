@@ -3,7 +3,7 @@
 $data = filter_input ( INPUT_GET , 'data' , FILTER_SANITIZE_STRING );
 // For cpu_*
 $cores = filter_input ( INPUT_GET , 'cores' , FILTER_SANITIZE_NUMBER_INT );
-// For disk_*
+// For disk_* and io_*
 $disks = filter_input ( INPUT_GET , 'disks' , FILTER_SANITIZE_STRING );
 // For temp_*
 $temps = filter_input ( INPUT_GET , 'temps' , FILTER_SANITIZE_STRING );
@@ -11,8 +11,8 @@ $temp_unit = filter_input ( INPUT_GET , 'temp_unit' , FILTER_SANITIZE_STRING );
 // For graph pretty-fying
 $hideXAxis = filter_input ( INPUT_GET , 'hideXAxis' , FILTER_SANITIZE_STRING );
 
-// Because istat_disks.php is a required file, we do some quick checks now so we can 
-// bail out early if needs be
+// Because istat_disks.php is a required file for some graphs, we do some quick 
+// checks now so we can bail out early if needs be
 if ( file_exists ( 'istat_disks.php' ) ) {
 	include_once ( 'istat_disks.php' );
 	define ( 'ISTAT_DISKS_FOUND' , true );
@@ -34,9 +34,9 @@ function formatSizeUnits ( $bytes , $force = false ) {
 		$bytes = number_format ( $bytes / 1099511627776 , 2 );
 	} elseif ( $bytes >= 1073741824 || $force == 'GB' ) {
 		$bytes = number_format ( $bytes / 1073741824 , 2 );
-	} elseif ( $bytes >= 1048576 ) {
+	} elseif ( $bytes >= 1048576 || $force == 'MB' ) {
 		$bytes = number_format ( $bytes / 1048576 , 2 );
-	} elseif ( $bytes >= 1024 ) {
+	} elseif ( $bytes >= 1024 || $force == 'KB' ) {
 		$bytes = number_format ( $bytes / 1024 , 2 );
 	} elseif ( $bytes > 1 ) {
 		$bytes = $bytes;
@@ -47,6 +47,14 @@ function formatSizeUnits ( $bytes , $force = false ) {
 	}
 
 	return round ( $bytes , 2 );
+}
+
+function bitsToKiloBits ( $bits ) {
+	return ( $bits / 1024 * 8) / 8;
+}
+
+function bitsToMegaBits ( $bits ) {
+	return ( $bits / 1024 / 1024);
 }
 
 // Thanks to my buddy Jedda (http://jedda.me) for the list of known SMC temp registers
@@ -343,7 +351,116 @@ switch ( $data ) {
 	
 	break;
 	
-	/* !Disk Month */
+	/* !Disk I/O Day */
+	case 'io_day' :
+		
+		$finalArray['graph']['title'] = 'Disk I/O (Last 24 Hours)';
+		$finalArray['graph']['yAxis'] = array (
+			'units' => array (
+				'suffix' => ' Kb/s' ,
+			) ,
+		);
+		
+		// Whoops, did you forget to set any $disks in the query string?
+		if ( !isset ( $disks ) ) {
+			$finalArray['graph']['error'] = array (
+				'message' => 'You have not provided any disks in the query string' ,
+				'detail' => 'Make sure you fill out istat_disks.php then add their numbers to the query string' ,
+			);
+			
+			break;
+		}
+		
+		// The istat_disks.php file does not exist, we need it
+		if ( !defined ( 'ISTAT_DISKS_FOUND' ) ) {
+			$finalArray['graph']['error'] = array (
+				'message' => 'Unable to locate istat_disks.php' ,
+				'detail' => 'Please make sure you\'ve set up the istat_disks.php with your disks and UUIDs' ,
+			);
+			
+			break;
+		}
+		
+		$explodedDisksArray = explode ( ',' , $disks );
+		
+		foreach ( $explodedDisksArray as $disk ) {
+			if ( array_key_exists ( $disk , $ioDisks ) ) {
+				$finalExplodedDiskArray[] = $disk;
+				
+				$tempUUIDArray[] = $ioDisks[$disk]['uuid'];
+				$tempDiskArray[$ioDisks[$disk]['uuid']] = $ioDisks[$disk]['name'];
+			}
+		}
+		
+		$sql = 'SELECT
+					time ,
+					uuid ,
+					read ,
+					write
+				FROM
+					day_diskactivityhistory
+				WHERE
+					uuid IN ( ';
+		
+		foreach ( $tempUUIDArray as $uuid ) {
+			$sql .= ' "' . $uuid . '" ,';
+		}
+		
+		$num = strlen ( $sql ) - 1;
+		
+		if ( $sql{$num} == ',' ) {
+			$sql = substr ( $sql , 0 , -1 );
+		}
+		
+		$diskLimitCount = count ( $finalExplodedDiskArray ) * 600;
+		
+		$sql .= ' )
+				ORDER BY
+					time
+				ASC
+				LIMIT ' . $diskLimitCount;
+		
+		$stmt = $db->prepare ( $sql );
+		
+		$stmt->execute();
+		
+		foreach ( $stmt->fetchAll() as $row ) {
+			$time = date ( 'H:i' , $row['time'] );
+			
+			$diskIOSequence[$row['uuid']]['read'][] = array ( 'title' => $time , 'value' => round ( bitsToKiloBits ( $row['read'] ) , 2 ) );
+			$diskIOSequence[$row['uuid']]['write'][] = array ( 'title' => $time , 'value' => round ( bitsToKiloBits ( $row['write'] ) , 2 ) );
+		}
+		
+		// I think this is a really gross way of doing it, but it's the only way I can figure 
+		// out how to do it right now
+		foreach ( $diskIOSequence as $uuid => $unfilteredArray ) {
+			foreach ( $unfilteredArray as $title => $data ) {
+				for ( $i = 0 ; $i <= count ( $data ) ; $i++ ) {
+					// I only want every 30th row to get an even spread over the last day
+					if ( $i % 30 == 0 && $data[$i] != 0 ) {
+						$newArray[$uuid][$title][] = $data[$i];
+					}
+				}
+			}
+		}
+		
+		foreach ( $tempDiskArray as $uuid => $name ) {
+			$finalDataSequence[] = array (
+				'title' => $name . ' (Write)' ,
+				'datapoints' => $newArray[$uuid]['write'] ,
+			);
+			
+			$finalDataSequence[] = array (
+				'title' => $name . ' (Read)' ,
+				'datapoints' => $newArray[$uuid]['read'] ,
+			);
+		}
+		
+		$finalArray['graph']['datasequences'] = $finalDataSequence;
+	
+	break;
+	
+	/* !Disk Usage Month */
 	case 'disk_month' :
 		
 		$finalArray['graph']['title'] = 'Disk Usage (Last Month)';
@@ -362,7 +479,7 @@ switch ( $data ) {
 		if ( !defined ( 'ISTAT_DISKS_FOUND' ) ) {
 			$finalArray['graph']['error'] = array (
 				'message' => 'Unable to locate istat_disks.php' ,
-				'detail' => 'Please make sure you\' set up the istat_disks.php with your disks and UUIDs' ,
+				'detail' => 'Please make sure you\'ve set up the istat_disks.php with your disks and UUIDs' ,
 			);
 			
 			break;
@@ -391,7 +508,7 @@ switch ( $data ) {
 				WHERE
 					uuid IN ( ';
 		
-		foreach ( $tempUUIDArray as $key => $uuid ) {
+		foreach ( $tempUUIDArray as $uuid ) {
 			$sql .= ' "' . $uuid . '" ,';
 		}
 		
@@ -419,6 +536,7 @@ switch ( $data ) {
 			$diskDataSequence[$row['uuid']][] = array ( 'title' => $time , 'value' => formatSizeUnits ( $row['used'] * 1024 * 1024 ) );
 		}
 		
+		// Find the largest value of disk size to scale the graph
 		$maxValueScale = max ( $maxValueSize );
 		
 		$finalArray['graph']['yAxis'] = array (
@@ -432,13 +550,13 @@ switch ( $data ) {
 		// out how to do it right now
 		foreach ( $diskDataSequence as $uuid => $unfilteredArray ) {
 			for ( $i = 0 ; $i <= count ( $unfilteredArray ) ; $i++ ) {
-				// I only want every 30th row to get an even spread over the last hour
+				// I only want every 30th row to get an even spread over the last month
 				if ( $i % 30 == 0 && $unfilteredArray[$i] != 0 ) {
 					$newArray[$uuid][] = $unfilteredArray[$i];
 				}
 			}
 			
-			// Construct the final array for each sensor
+			// Construct the final array for each disk
 			$finalDataSequence[] = array (
 				'title' => $tempDiskArray[$uuid] ,
 				'datapoints' => $newArray[$uuid] ,
@@ -610,7 +728,7 @@ switch ( $data ) {
 		if ( !isset ( $temps ) ) {
 			$finalArray['graph']['error'] = array (
 				'message' => 'You have not provided any temperature sensors in the query string' ,
-				'detail' => 'Make sure you add sensors to the query string' ,
+				'detail' => 'Make sure you add sensors to the query string e.g. &temps=TC0H or &temps=TC0H,TC0P' ,
 			);
 			
 			break;
