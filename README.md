@@ -12,6 +12,7 @@ Data Types:
 * **cpu_hour:** CPU usage for the last 60 minutes
 * **ram_day:** RAM usage for the last 24 hours
 * **ram_hour:** RAM usage for the last 60 minutes
+* **io_day** Disk I/O for the last 24 hours
 * **disk_month:** Disk usage for the last month
 * **load_day:** CPU load for the last 24 hours
 * **load_hour:** CPU load for the last 60 minutes
@@ -56,7 +57,11 @@ Once you've made that file, disks should then be added to the query string like 
 Where the number(s) are the number you assigned the disks in ```istat_disks.php```.
 
 ### Disk I/O Graph Usage
-Like disk usage, disk I/O requires a ```istat_disks.php``` file with some information regarding your disks.  In the case of monitoring disk I/O, we need the serial number of the disk, along with a name.  iStat Server can currently only monitor internal disks.  These details should be in ```istat_disks.php``` like below:
+Like disk usage, disk I/O requires a ```istat_disks.php``` file with some information regarding your disks.  In the case of monitoring disk I/O, we need the serial number of the disk, along with a name.  iStat Server can currently only monitor internal disks.
+
+Serial numbers for disks can be found in the System Information app (nee System Profiler).  Open System Information then click on Serial-ATA.  On the right hand-side you'll see each internal HDD/SSD.  Click on each applicable disk you want to monitor and the serial number will be listed below.
+
+Once you've got the serial number for each disk, enter the details in ```istat_disks.php``` like below:
 
 ```php
 <?php
