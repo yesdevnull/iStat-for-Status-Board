@@ -27,7 +27,7 @@ There's an optional parameter called ```$cores``` that you can provide to better
 
 Remember, this defaults to 2, so if your machine is dual-core, don't worry about passing ```$cores``` as we assume dual-core.
 
-### Disks Graph Usage
+### Disk Usage Graph Usage
 To monitor your disks, iStat for Status Board needs the UUID and name of each disk to monitor.  These should be put into an array in a file called ```istat_disks.php``` and stored in the same location as the rest of this code. 
 
 Example:
@@ -54,6 +54,47 @@ Once you've made that file, disks should then be added to the query string like 
 ```&disks=1``` or ```&disks=1,2```
 
 Where the number(s) are the number you assigned the disks in ```istat_disks.php```.
+
+### Disk I/O Graph Usage
+Like disk usage, disk I/O requires a ```istat_disks.php``` file with some information regarding your disks.  In the case of monitoring disk I/O, we need the serial number of the disk, along with a name.  iStat Server can currently only monitor internal disks.  These details should be in ```istat_disks.php``` like below:
+
+```php
+<?php
+
+$ioDisks = array (
+	'1' => array (
+		'uuid' => 'DISK_SERIAL_NUMBER' ,
+		'name' => 'BRAND_NAME_OF_DISK' ,
+	) ,
+	'2' => array (
+		'uuid' => 'ANOTHER_DISK_SERIAL_NUMBER' ,
+		'name' => 'ANOTHER_NAME_FOR_DISK' , // For example
+	) ,
+);
+```
+
+In my Mac mini Server I have two internal disks, see below for how I have my $ioDisks array configured (note that serial numbers have been obfuscated for warranty purposes):
+
+```php
+<?php
+
+$ioDisks = array (
+	'1' => array (
+		'uuid' => 'OBFUSCATED' ,
+		'name' => 'OCZ Vertex SSD' ,
+	) ,
+	'2' => array (
+		'uuid' => 'OBFUSCATED' ,
+		'name' => 'Hitachi HDD' ,
+	) ,
+);
+```
+
+Like the disk usage graph, you should add a ```disks``` var to your query string, example below:
+
+```&disks=1``` or ```&disks=1,2```
+
+Remember, multiple disks __MUST__ be comma delimited with no spaces.
 
 ### Temperature Sensor Graph Usage
 To use the temp sensor graphs you need to provide another parameter which should have a list of sensors
