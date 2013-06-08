@@ -59,7 +59,7 @@ Where the number(s) are the number you assigned the disks in ```istat_disks.php`
 ### Disk I/O Graph Usage
 Like disk usage, disk I/O requires a ```istat_disks.php``` file with some information regarding your disks.  In the case of monitoring disk I/O, we need the serial number of the disk, along with a name.  iStat Server can currently only monitor internal disks.
 
-Serial numbers for disks can be found in the System Information app (nee System Profiler).  Open System Information then click on Serial-ATA.  On the right hand-side you'll see each internal HDD/SSD.  Click on each applicable disk you want to monitor and the serial number will be listed below.
+Serial numbers for disks can be found in the System Information app (née System Profiler).  Open System Information then click on Serial-ATA.  On the right hand-side you'll see each internal HDD/SSD.  Click on each applicable disk you want to monitor and the serial number will be listed below.
 
 Once you've got the serial number for each disk, enter the details in ```istat_disks.php``` like below:
 
@@ -73,7 +73,7 @@ $ioDisks = array (
 	) ,
 	'2' => array (
 		'uuid' => 'ANOTHER_DISK_SERIAL_NUMBER' ,
-		'name' => 'ANOTHER_NAME_FOR_DISK' , // For example
+		'name' => 'ANOTHER_NAME_FOR_DISK' ,
 	) ,
 );
 ```
