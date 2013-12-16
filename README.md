@@ -136,3 +136,7 @@ You can optionally specify the desired temperature scale (Celsius or Fahrenheit)
 
 ## Alert!
 This has been tested on Mac OS X 10.8.3 with the default PHP runtime environment with iStat Server 2.12
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/yesdevnull/istat-for-status-board/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
