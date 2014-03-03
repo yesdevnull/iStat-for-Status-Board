@@ -1,9 +1,11 @@
-# Info
+# iStat for Status Board [![Project Status](http://stillmaintained.com/yesdevnull/iStat-for-Status-Board.png)](http://stillmaintained.com/yesdevnull/iStat-for-Status-Board)
+
+## Info
 This is a collection of graphs from iStat Server 2's database for [Panic's Status Board](http://panic.com/statusboard/) app for iPad.
 
-[Check out the blog post here.](http://www.yesdevnull.net/2013/05/istat-server-graphs-for-status-board/)
+[Check out the blog post here.](http://yesdevnull.net/2013/05/istat-server-graphs-for-status-board/)
 
-## Usage
+### Usage
 1. Chuck this file anywhere on your server accessible by Apache (and the outside world, or just in your network)
 2. Add a graph in Status Board with the URI ```/path/to/file/istat.php?data=xxx```
 
@@ -21,14 +23,14 @@ Data Types:
 
 Also included is a graph modified to hide the X axis (timestamps).  To do this, simple add ```&hideXAxis``` anywhere in your query string.
 
-### CPU Graph Usage
+#### CPU Graph Usage
 There's an optional parameter called ```$cores``` that you can provide to better scale the graph.  By default, we assume that your machine is a dual-core machine, but you can override that using the ```$cores``` variable.  Simply add to the query string like such:
 
 ```&cores=4``` or ```&cores=8```
 
 Remember, this defaults to 2, so if your machine is dual-core, don't worry about passing ```$cores``` as we assume dual-core.
 
-### Disk Usage Graph Usage
+#### Disk Usage Graph Usage
 To monitor your disks, iStat for Status Board needs the UUID and name of each disk to monitor.  These should be put into an array in a file called ```istat_disks.php``` and stored in the same location as the rest of this code. 
 
 Example:
@@ -56,7 +58,7 @@ Once you've made that file, disks should then be added to the query string like 
 
 Where the number(s) are the number you assigned the disks in ```istat_disks.php```.
 
-### Disk I/O Graph Usage
+#### Disk I/O Graph Usage
 Like disk usage, disk I/O requires a ```istat_disks.php``` file with some information regarding your disks.  In the case of monitoring disk I/O, we need the serial number of the disk, along with a name.  iStat Server can currently only monitor internal disks.
 
 Serial numbers for disks can be found in the System Information app (née System Profiler).  Open System Information then click on Serial-ATA.  On the right hand-side you'll see each internal HDD/SSD.  Click on each applicable disk you want to monitor and the serial number will be listed below.
@@ -101,7 +103,7 @@ Like the disk usage graph, you should add a ```disks``` var to your query string
 
 Remember, multiple disks __MUST__ be comma delimited with no spaces.
 
-### Temperature Sensor Graph Usage
+#### Temperature Sensor Graph Usage
 To use the temp sensor graphs you need to provide another parameter which should have a list of sensors
 you'd like to get readings from the list below:
 
@@ -129,12 +131,12 @@ Once you've got the sensors you'd like to read, add them to the query string lik
 
 Multiple temps __MUST__ be comma delimited with no spaces, otherwise they will be ignored.
 
-####Optional Temperature Scale
+##### Optional Temperature Scale
 You can optionally specify the desired temperature scale (Celsius or Fahrenheit). If no scale is specified, the scale will default to Celsius. Simply add to the query string like below:
 
 ```&temp_unit=f``` or ```&temp_unit=c```
 
-## Alert!
+### Alert!
 This has been tested on Mac OS X 10.8.3 with the default PHP runtime environment with iStat Server 2.12
 
 
