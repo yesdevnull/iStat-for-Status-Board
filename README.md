@@ -1,4 +1,6 @@
-# iStat for Status Board [![Project Status](http://stillmaintained.com/yesdevnull/iStat-for-Status-Board.png)](http://stillmaintained.com/yesdevnull/iStat-for-Status-Board)
+# iStat for Status Board
+
+**Note:** this is not maintained and has been archived.
 
 ## Info
 This is a collection of graphs from iStat Server 2's database for [Panic's Status Board](http://panic.com/statusboard/) app for iPad.
@@ -138,7 +140,4 @@ You can optionally specify the desired temperature scale (Celsius or Fahrenheit)
 
 ### Alert!
 This has been tested on Mac OS X 10.8.3 with the default PHP runtime environment with iStat Server 2.12
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/yesdevnull/istat-for-status-board/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
